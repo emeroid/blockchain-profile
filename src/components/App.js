@@ -36,18 +36,17 @@ class App extends Component {
       const profileId = await registration.methods.profileId.call();
       this.setState({ profileCount: profileId});
 
+      console.log(networkData.address);
+      // Check if profile is created
       const profile = await registration.methods.getProfile(this.state.account).call();
-      //console.log(profile);
-      //Get All transactions;
-      this.setState({profiles: profile});
-      //this.state.profiles.map(e => console.log(e));
-      for(var i = 0; i < this.state.profiles; i++ ){
-        //const profile = await registration.methods.Profiles.call();
-        //this.setState({profiles: [...this.state.profiles, profile]});
-        console.log(this.state.profiles.length);
-      }
-      //console.log(this.state.profiles);
 
+      //Get Current Profile;
+        this.setState({profiles: profile});
+        window.ethereum.on('accountsChanged', function (accounts) {
+        
+                return window.location.reload();
+        });
+      
     }else{
       window.alert('Registration contract not deployed to this network');
     }
@@ -60,7 +59,7 @@ class App extends Component {
       account: '',
       profileCount: 0,
       profiles: [],
-      loading: false,
+      created: false,
       price: '',
     }
 
@@ -69,10 +68,12 @@ class App extends Component {
 
    createProfile(firstName, lastName){
       //, gasPrice: window.web3.utils.fromWei(this.state.gasFee.toString(), 'Ether'), gas: 1000000
-      if(!this.state.profiles){
+      //console.log(this.state.profiles[0] === '');
+      if(this.state.profiles[0] === ''){
         this.state.registration.methods.createProfile(firstName, lastName).send({from: this.state.account, value: window.web3.utils.toWei('0.01', 'ether')})
         .then((error, resp) => {
               console.log(error, resp);
+              return window.location.reload();
         });
       }else{
           window.alert('You can only create one profile');
@@ -130,9 +131,9 @@ class App extends Component {
                 <tbody>
                     <tr>
                       <th scope="row"></th>
-                      <td>{this.state.profiles.firstname}</td>
-                      <td>{this.state.profiles.lastname}</td>
-                      <td></td>
+                      <td>{this.state.profiles[0]}</td>
+                      <td>{this.state.profiles[1]}</td>
+                      <td>{this.state.profileCount.toString()}</td>
                     </tr>
                 </tbody>
               </table>

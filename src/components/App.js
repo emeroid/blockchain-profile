@@ -40,11 +40,13 @@ class App extends Component {
       //console.log(profile);
       //Get All transactions;
       this.setState({profiles: profile});
-      //for(var i = 0; i < profileId; i++ ){
-      //  const profile = await registration.methods.Profiles.call();
-      //  this.setState({profiles: [...this.state.profiles, profile]});
-      //}
-        console.log(this.state.profiles);
+      //this.state.profiles.map(e => console.log(e));
+      for(var i = 0; i < this.state.profiles; i++ ){
+        //const profile = await registration.methods.Profiles.call();
+        //this.setState({profiles: [...this.state.profiles, profile]});
+        console.log(this.state.profiles.length);
+      }
+      //console.log(this.state.profiles);
 
     }else{
       window.alert('Registration contract not deployed to this network');
@@ -67,11 +69,14 @@ class App extends Component {
 
    createProfile(firstName, lastName){
       //, gasPrice: window.web3.utils.fromWei(this.state.gasFee.toString(), 'Ether'), gas: 1000000
-      this.state.registration.methods.createProfile(firstName, lastName).send({from: this.state.account, value: window.web3.utils.toWei('0.01', 'ether')})
-      .once('receipt', (receipt) => {
-        console.log(receipt);
-      });
-
+      if(!this.state.profiles){
+        this.state.registration.methods.createProfile(firstName, lastName).send({from: this.state.account, value: window.web3.utils.toWei('0.01', 'ether')})
+        .then((error, resp) => {
+              console.log(error, resp);
+        });
+      }else{
+          window.alert('You can only create one profile');
+      }
   }
 
   render() {
@@ -123,17 +128,12 @@ class App extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  { this.state.profiles.map((profile, index) => {
-                        return (
-                          <tr key={index}>
-                            <th scope="row">{index}</th>
-                            <td>{profile.firstname}</td>
-                            <td>{profile.lastname}</td>
-                            <td>{profile.userId}</td>
-                          </tr>
-                        )
-                    })
-                  }
+                    <tr>
+                      <th scope="row"></th>
+                      <td>{this.state.profiles.firstname}</td>
+                      <td>{this.state.profiles.lastname}</td>
+                      <td></td>
+                    </tr>
                 </tbody>
               </table>
           </div>

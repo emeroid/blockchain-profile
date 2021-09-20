@@ -29,6 +29,7 @@ class App extends Component {
     this.setState({account: account[0]});
     const networkId = await web3.eth.net.getId();
     const networkData = Register.networks[networkId];
+    //const deployed =  Register.deployed()
     //console.log(networkData);
     if(networkData){
       const registration = web3.eth.Contract(Register.abi, networkData.address);
@@ -36,14 +37,21 @@ class App extends Component {
       const profileId = await registration.methods.profileId.call();
       this.setState({ profileCount: profileId});
 
-      console.log(networkData.address);
+      //console.log(networkData.address);
       // Check if profile is created
       const profile = await registration.methods.getProfile(this.state.account).call();
+      
+      
+
+      //for(var i = 0; i <= profileId; i++){
+      //  const profileff = await registration.methods.Profiles(account).call();
+      //}
+
+      console.log(web3);
 
       //Get Current Profile;
         this.setState({profiles: profile});
         window.ethereum.on('accountsChanged', function (accounts) {
-        
                 return window.location.reload();
         });
       
@@ -67,14 +75,24 @@ class App extends Component {
   }
 
    createProfile(firstName, lastName){
-      //, gasPrice: window.web3.utils.fromWei(this.state.gasFee.toString(), 'Ether'), gas: 1000000
-      //console.log(this.state.profiles[0] === '');
+
       if(this.state.profiles[0] === ''){
         this.state.registration.methods.createProfile(firstName, lastName).send({from: this.state.account, value: window.web3.utils.toWei('0.01', 'ether')})
-        .then((error, resp) => {
-              console.log(error, resp);
-              return window.location.reload();
+        .on('transactionHash', function(transactionHash){ 
+          console.log(transactionHash) // contains the new contract address
+         })
+        .on('receipt', function(receipt){
+           console.log(receipt.contractAddress) // contains the new contract address
+           //return window.location.reload();
+        })
+        .on('confirmation', function(confirmationNumber, receipt){ 
+          console.log(confirmationNumber, receipt)
+          return window.location.reload();
+        })
+        .then(function(newContractInstance){
+            console.log(newContractInstance.options.address) // instance with the new contract address
         });
+
       }else{
           window.alert('You can only create one profile');
       }

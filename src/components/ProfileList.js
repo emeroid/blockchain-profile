@@ -4,9 +4,10 @@ import './App.css';
 class ProfileList extends Component {
 
   render() {
+      const profile = this.props;
     return (
-        <div>
-            <table class="table">
+        <>
+            <table class="table" style={{marginTop: 70, padding: 20}}>
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -16,20 +17,15 @@ class ProfileList extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {this.props.profiles.map((profile, index) => {
-                        return (
-                          <tr key={index}>
-                            <th scope="row">{index}</th>
-                            <td>{profile.firstname}</td>
-                            <td>{profile.lastname}</td>
-                            <td>{profile.userId.toString()}</td>
-                          </tr>
-                        )
-                    })
-                  }
+                    <tr>
+                        <th scope="row">{1}</th>
+                        <td>{profile.firstname}</td>
+                        <td>{profile.lastname}</td>
+                        <td>{profile[2].toString()}</td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
+        </>
     );
   }
 }

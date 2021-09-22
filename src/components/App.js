@@ -1,62 +1,28 @@
 import React, { Component } from 'react';
-import Web3 from 'web3';
+import web3 from './web3';
 //import logo from '../logo.png';
 import './App.css';
-import Register from '../abis/Register.json';
+import register from './register';
+//import Register from '../abis/Register.json';
 import Header from './Header';
 
 class App extends Component {
 
   async componentWillMount(){
-    await this.loadWeb3();
+    //await this.loadWeb3();
     await this.loadBlockchain();
   }
-
-  async loadWeb3(){
-    if(window.ethereum){
-      window.web3 = new Web3(window.ethereum);
-      await window.ethereum.enable();
-    } else if (window.web3){
-      window.web3 = new Web3(window.web3.currentProvider);
-    }else{
-      alert('No ethereum browser detected, consider installing metaMask chrome plugin');
-    }
-  }
-
+  
   async loadBlockchain(){
-    const web3 = window.web3;
+    this.setState({loading: true});
     const account = await web3.eth.getAccounts();
     this.setState({account: account[0]});
-    const networkId = await web3.eth.net.getId();
-    const networkData = Register.networks[networkId];
-    //const deployed =  Register.deployed()
-    //console.log(networkData);
-    if(networkData){
-      const registration = web3.eth.Contract(Register.abi, networkData.address);
-      this.setState({registration});
-      const profileId = await registration.methods.profileId.call();
-      this.setState({ profileCount: profileId});
-
-      //console.log(networkData.address);
-      // Check if profile is created
-      const profile = await registration.methods.getProfile(this.state.account).call();
-      
-      
-
-      //for(var i = 0; i <= profileId; i++){
-      //  const profileff = await registration.methods.Profiles(account).call();
-      //}
-
-      console.log(web3);
-
-      //Get Current Profile;
-        this.setState({profiles: profile});
-        window.ethereum.on('accountsChanged', function (accounts) {
-                return window.location.reload();
-        });
-      
-    }else{
-      window.alert('Registration contract not deployed to this network');
+    const profileId = await register.methods.profileId.call();
+    const profile = await register.methods.getProfile(this.state.account).call();
+    this.setState({profile, profileId});
+    console.log(profile);
+    if(profile){
+       this.setState({loaded: false});
     }
     
   }
@@ -65,25 +31,21 @@ class App extends Component {
     super(props);
     this.state = {
       account: '',
-      profileCount: 0,
-      profiles: [],
-      created: false,
-      price: '',
+      loading: false,
+      profileId: 0,
+      profile: []
     }
-
     this.createProfile  = this.createProfile.bind(this);
   }
 
    createProfile(firstName, lastName){
-
-      if(this.state.profiles[0] === ''){
-        this.state.registration.methods.createProfile(firstName, lastName).send({from: this.state.account, value: window.web3.utils.toWei('0.01', 'ether')})
+        register.methods.createProfile(firstName, lastName).send({from: this.state.account, value: web3.utils.toWei('0.01', 'ether')})
         .on('transactionHash', function(transactionHash){ 
           console.log(transactionHash) // contains the new contract address
          })
         .on('receipt', function(receipt){
-           console.log(receipt.contractAddress) // contains the new contract address
-           //return window.location.reload();
+           console.log(receipt.contractAddress) // contains the new contract address with receipt
+           
         })
         .on('confirmation', function(confirmationNumber, receipt){ 
           console.log(confirmationNumber, receipt)
@@ -92,10 +54,7 @@ class App extends Component {
         .then(function(newContractInstance){
             console.log(newContractInstance.options.address) // instance with the new contract address
         });
-
-      }else{
-          window.alert('You can only create one profile');
-      }
+      
   }
 
   render() {
@@ -106,7 +65,7 @@ class App extends Component {
           <div className="row">
             <main role="main" className="col-lg-12 d-flex text-center">
               <div className="content mr-auto ml-auto">
-                <h1 className="h3 mb-8"> Registration Profile </h1>
+                <h1 className="h3 mb-8 mt-9"> Registration Profile </h1>
                 <form className="my-7" onSubmit={(event) => {
                       event.preventDefault();
                       const firstName = this.first_name.value;
@@ -117,21 +76,21 @@ class App extends Component {
                   <div class="form-group">
                     <label for="first_name">First Name</label>
                     <input 
-                    type="text" 
-                    class="form-control" 
-                    id="first_name" 
-                    ref={(input) => {this.first_name = input}}
-                    aria-describedby="emailHelp" 
-                    placeholder="Enter First Name"/>
+                          type="text" 
+                          class="form-control" 
+                          id="first_name" 
+                          ref={(input) => {this.first_name = input}}
+                          aria-describedby="emailHelp" 
+                          placeholder="Enter First Name"/>
                    </div>
                   <div class="form-group">
                     <label for="last_name">Last Name</label>
                     <input 
-                    type="text" 
-                    class="form-control" 
-                    id="last_name" 
-                    ref={(input) => {this.last_name = input}}
-                    placeholder="Enter Last Name"/>
+                          type="text" 
+                          class="form-control" 
+                          id="last_name" 
+                          ref={(input) => {this.last_name = input}}
+                          placeholder="Enter Last Name"/>
                   </div>
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
@@ -147,12 +106,12 @@ class App extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    {this.state.loading ? <div className="spiner">Loading Item........</div> : (<tr>
                       <th scope="row"></th>
-                      <td>{this.state.profiles[0]}</td>
-                      <td>{this.state.profiles[1]}</td>
-                      <td>{this.state.profileCount.toString()}</td>
-                    </tr>
+                      <td>{this.state.profile[0]}</td>
+                      <td>{this.state.profile[1]}</td>
+                      <td>{this.state.profileId.toString()}</td>
+                    </tr>)}
                 </tbody>
               </table>
           </div>

@@ -6,13 +6,13 @@ class ProfileCreate extends Component {
   render() {
     return (
         <div>
-              <form className="my-7" onSubmit={(event) => {
+            <form className="my-7" onSubmit={(event) => {
                 event.preventDefault();
                 const firstName = this.first_name.value;
                 const lastName = this.last_name.value;
                 this.props.createProfile(firstName, lastName);
                 }
-              }>
+            }>
               <div class="form-group">
               <label for="first_name">First Name</label>
               <input 

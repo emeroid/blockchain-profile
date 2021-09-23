@@ -9,7 +9,6 @@ import Header from './Header';
 class App extends Component {
 
   async componentWillMount(){
-    //await this.loadWeb3();
     await this.loadBlockchain();
   }
   
@@ -21,7 +20,7 @@ class App extends Component {
     const profile = await register.methods.getProfile(this.state.account).call();
     const isEmpty = profile[0] !== '';
     this.setState({profile, profileId});
-    console.log(profile, isEmpty);
+    //console.log(profile, isEmpty);
     if(isEmpty){
        this.setState({loading: false});
     }
@@ -47,25 +46,27 @@ class App extends Component {
         }
         if(isEmpty) {
             alert('You have created a profile on this network. Try changing to a new account.');
+            return;
         }else{
 
         register.methods.createProfile(firstName, lastName).send({from: this.state.account, value: web3.utils.toWei('0.01', 'ether')})
         .on('transactionHash', function(transactionHash){ 
-          console.log(transactionHash) // contains the new contract address
+            console.log(transactionHash) // contains the new contract address
          })
         .on('receipt', function(receipt){
            console.log(receipt.contractAddress) // contains the new contract address with receipt
            
         })
         .on('confirmation', function(confirmationNumber, receipt){ 
-          console.log(confirmationNumber, receipt)
-          this.setState({loaded: false});
-          //return window.location.reload();
+              console.log(confirmationNumber, receipt);
+              return window.location.reload();
         })
         .then(function(newContractInstance){
             console.log(newContractInstance.options.address) // instance with the new contract address
         });
+        
       }
+
       
   }
 

@@ -19,10 +19,11 @@ class App extends Component {
     this.setState({account: account[0]});
     const profileId = await register.methods.profileId.call();
     const profile = await register.methods.getProfile(this.state.account).call();
+    const isEmpty = profile[0] !== '';
     this.setState({profile, profileId});
-    console.log(profile);
-    if(profile){
-       this.setState({loaded: false});
+    console.log(profile, isEmpty);
+    if(isEmpty){
+       this.setState({loading: false});
     }
     
   }
@@ -39,6 +40,14 @@ class App extends Component {
   }
 
    createProfile(firstName, lastName){
+        const isEmpty = this.state.profile[0] !== '';
+        if(firstName === '' || lastName === ''){
+           alert('Please fill all fields');
+        }
+        if(isEmpty) {
+            alert('You have created a profile on this network. Try changing to a new account.');
+        }else{
+
         register.methods.createProfile(firstName, lastName).send({from: this.state.account, value: web3.utils.toWei('0.01', 'ether')})
         .on('transactionHash', function(transactionHash){ 
           console.log(transactionHash) // contains the new contract address
@@ -49,11 +58,13 @@ class App extends Component {
         })
         .on('confirmation', function(confirmationNumber, receipt){ 
           console.log(confirmationNumber, receipt)
-          return window.location.reload();
+          this.setState({loaded: false});
+          //return window.location.reload();
         })
         .then(function(newContractInstance){
             console.log(newContractInstance.options.address) // instance with the new contract address
         });
+      }
       
   }
 
@@ -106,7 +117,7 @@ class App extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                    {this.state.loading ? <div className="spiner">Loading Item........</div> : (<tr>
+                    {this.state.loading ? <div className="spiner">Your Created Profile will display here shortly........</div> : (<tr>
                       <th scope="row"></th>
                       <td>{this.state.profile[0]}</td>
                       <td>{this.state.profile[1]}</td>

@@ -43,6 +43,7 @@ class App extends Component {
         const isEmpty = this.state.profile[0] !== '';
         if(firstName === '' || lastName === ''){
            alert('Please fill all fields');
+           return;
         }
         if(isEmpty) {
             alert('You have created a profile on this network. Try changing to a new account.');
